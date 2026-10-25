@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LORIVIO — Taccuino di illustrazioni e pitture</title>
+  <meta name="description" content="LORIVIO — Taccuino di illustrazioni e pitture di Loris F., tra realtà e sogno. Disegni sospesi a occhi chiusi, dal Basso Piave." />
+  <link rel="icon" type="image/svg+xml" href="images/favicon.svg" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #fff;
+      color: #222;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 17px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    img { display: block; max-width: 100%; }
+    a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+    .wrap { max-width: 46rem; margin: 0 auto; padding: 0 1.25rem; }
+
+    header { padding: 4rem 0 2.5rem; }
+    header h1 { font-size: 1.5rem; font-weight: normal; letter-spacing: .04em; }
+    header p { margin-top: .5rem; color: #666; font-style: italic; }
+
+    .gallery figure { margin-bottom: 3rem; }
+    .gallery img { width: 100%; height: auto; cursor: zoom-in; }
+    .gallery figcaption { margin-top: .5rem; font-size: .9rem; color: #666; }
+    .gallery figcaption .t { font-style: italic; }
+
+    footer { margin-top: 2rem; padding: 2.5rem 0 3rem; border-top: 1px solid #e5e5e5; color: #555; font-size: .95rem; }
+    footer p + p { margin-top: 1rem; }
+    footer .links { margin-top: 1.5rem; }
+    footer .links a { margin-right: 1.25rem; }
+    footer .copy { margin-top: 2rem; font-size: .8rem; color: #999; }
+
+    ::selection { background: #f0ddd2; }
+
+    /* lightbox */
+    .lightbox { position: fixed; inset: 0; z-index: 100; background: rgba(255, 255, 255, .97); display: flex; align-items: center; justify-content: center; }
+    .lightbox.hidden { display: none; }
+    .lightbox img { max-width: 92vw; max-height: 82vh; cursor: zoom-out; }
+    .lightbox .cap { position: absolute; bottom: 1.25rem; left: 0; right: 0; text-align: center; font-size: .9rem; color: #666; font-style: italic; padding: 0 1rem; }
+    .lightbox .nav { position: absolute; top: 50%; transform: translateY(-50%); border: none; background: none; font: inherit; font-size: 1.6rem; color: #999; cursor: pointer; padding: 1rem; }
+    .lightbox .nav:hover { color: #222; }
+    #lb-prev { left: .5rem; }
+    #lb-next { right: .5rem; }
+    #lb-close { position: absolute; top: .75rem; right: 1rem; border: none; background: none; font-size: 1.6rem; color: #999; cursor: pointer; }
+    #lb-close:hover { color: #222; }
+  </style>
+</head>
+<body>
+
+  <header class="wrap">
+    <h1>Lorivio</h1>
+    <p>Illustrazioni e opere tra realtà e sogno.</p>
+  </header>
+
+  <main class="wrap">
+    <div class="gallery" id="grid"></div>
+  </main>
+
+  <footer class="wrap">
+    <p>Mi piace disegnare e dipingere. Nei miei lavori ricorre un orsetto dai tratti essenziali — un viaggiatore tranquillo che attraversa montagne, onde, stanze e notti piene di stelle.</p>
+    <p>Le immagini che preferisco nascono dal paesaggio e dalla vita quotidiana che mi circondano, sospese a metà tra realtà e sogno. Vivo e lavoro nel Basso Piave.</p>
+    <div class="links">
+      <a href="https://www.pixiv.net/en/" target="_blank" rel="noreferrer">Pixiv</a>
+      <a href="mailto:lori@lorivio.it">Email</a>
+    </div>
+    <p class="copy">© 2026 Lori · Le illustrazioni sono distribuite con licenza <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" rel="noreferrer">CC BY-NC-ND 4.0</a></p>
+  </footer>
+
+  <div class="lightbox hidden" id="lightbox" role="dialog" aria-modal="true">
+    <button id="lb-close" aria-label="Chiudi">×</button>
+    <button class="nav" id="lb-prev" aria-label="Precedente">←</button>
+    <img id="lb-img" src="" alt="" />
+    <button class="nav" id="lb-next" aria-label="Successiva">→</button>
+    <div class="cap" id="lb-cap"></div>
+  </div>
+
+  <script>
+    var ARTWORKS = [
+      { src: 'images/il-viaggiatore-102.jpg', t: 'Il viaggiatore', c: 'Inchiostro e acquerello' },
+      { src: 'images/voci-dalle-montagne-021.jpg', t: 'Voci dalle montagne', c: 'Acquerello' },
+      { src: 'images/la-grande-onda-019.jpg', t: 'La grande onda', c: 'Acquerello' },
+      { src: 'images/estate-in-campagna-013.jpg', t: 'Estate in campagna', c: 'Acquerello' },
+      { src: 'images/vento-di-bora-020.jpg', t: 'Vento di bora', c: 'Acquerello' },
+      { src: 'images/drago-nuvola-014.jpg', t: 'Drago nuvola', c: 'Acquerello' },
+      { src: 'images/si-accendono-le-stelle-015.jpg', t: 'Si accendono le stelle', c: 'Inchiostro e grafite' },
+      { src: 'images/parte-della-natura-012.jpg', t: 'Parte della natura', c: 'Inchiostro e acquerello' },
+      { src: 'images/deporre-le-armi-016.jpg', t: 'Deporre le armi', c: 'Inchiostro e acquerello' },
+      { src: 'images/032.jpg', t: 'Il mare sale a trovarli', c: 'Inchiostro e acquerello' },
+      { src: 'images/sotto-il-sole-017.jpg', t: 'In cima al monte', c: 'Inchiostro e grafite' },
+      { src: 'images/dimensioni-del-tempo-022.jpg', t: 'Dimensioni del tempo', c: 'Inchiostro e grafite' },
+      { src: 'images/carta-paglia-006.jpg', t: 'Carta paglia', c: 'Inchiostro su carta di paglia' },
+      { src: 'images/selvaggio-viaggiatore-008.jpg', t: 'Riposo del lupo', c: 'Olio su tela' },
+      { src: 'images/il-fuoco-e-la-luna-009.jpg', t: 'Il fuoco e la luna', c: 'Olio su tela' },
+      { src: 'images/copertina-per-katan-028.jpg', t: 'Katan — studio di copertina', c: 'Editoriale' }
+    ];
+
+    var grid = document.getElementById('grid');
+
+    ARTWORKS.forEach(function (a, i) {
+      var fig = document.createElement('figure');
+      fig.innerHTML =
+        '<img src="' + a.src + '" alt="' + a.t + ' — ' + a.c + '" loading="lazy" />' +
+        '<figcaption><span class="t">' + a.t + '</span> · ' + a.c + '</figcaption>';
+      fig.querySelector('img').addEventListener('click', function () { openLb(i); });
+      grid.appendChild(fig);
+    });
+
+    var lb = document.getElementById('lightbox');
+    var lbImg = document.getElementById('lb-img');
+    var lbCap = document.getElementById('lb-cap');
+    var lbIndex = 0;
+
+    function renderLb() {
+      var a = ARTWORKS[lbIndex];
+      lbImg.src = a.src;
+      lbImg.alt = a.t + ' — ' + a.c;
+      lbCap.textContent = a.t + ' — ' + a.c;
+    }
+    function openLb(i) { lbIndex = i; renderLb(); lb.classList.remove('hidden'); }
+    function closeLb() { lb.classList.add('hidden'); }
+    function stepLb(d) { lbIndex = (lbIndex + d + ARTWORKS.length) % ARTWORKS.length; renderLb(); }
+
+    document.getElementById('lb-close').addEventListener('click', closeLb);
+    document.getElementById('lb-prev').addEventListener('click', function () { stepLb(-1); });
+    document.getElementById('lb-next').addEventListener('click', function () { stepLb(1); });
+    lbImg.addEventListener('click', closeLb);
+    document.addEventListener('keydown', function (e) {
+      if (lb.classList.contains('hidden')) return;
+      if (e.key === 'Escape') closeLb();
+      if (e.key === 'ArrowRight') stepLb(1);
+      if (e.key === 'ArrowLeft') stepLb(-1);
+    });
+  </script>
+</body>
+</html>

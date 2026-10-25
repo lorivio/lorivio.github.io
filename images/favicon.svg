@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Cerchio colore sfondo homepage #f5f2ed con bordo sottile per visibilità -->
+  <circle cx="50" cy="50" r="50" fill="#f5f2ed"/>
+  <!-- "Lo" in Fraunces (fallback Georgia), centrato -->
+  <text
+    x="50" y="67"
+    text-anchor="middle"
+    font-family="'Fraunces', Georgia, serif"
+    font-size="46"
+    font-weight="500"
+    fill="#1a1714"
+    letter-spacing="-1">Lo</text>
+</svg>
