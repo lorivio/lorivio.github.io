@@ -18,7 +18,10 @@
   <meta name="twitter:card" content="summary_large_image" />
   <link rel="icon" type="image/svg+xml" href="images/favicon.svg" />
   <style>
+    :root { --accent: #bd422e; } /* rosso del timbro nelle opere */
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scrollbar-gutter: stable; }
     body {
       background: #fff;
       color: #222;
@@ -28,37 +31,56 @@
       -webkit-font-smoothing: antialiased;
     }
     img { display: block; max-width: 100%; }
-    a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+    a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; transition: color .2s ease; }
+    a:hover, a:focus-visible { color: var(--accent); }
+    :focus-visible { outline: 1px solid var(--accent); outline-offset: 3px; }
     .wrap { max-width: 46rem; margin: 0 auto; padding: 0 1.25rem; }
 
-    header { padding: 4rem 0 2.5rem; }
-    header h1 { font-size: 1.5rem; font-weight: normal; letter-spacing: .04em; }
-    header p { margin-top: .5rem; color: #666; font-style: italic; }
+    header.wrap { padding-top: clamp(2.5rem, 9vw, 5rem); padding-bottom: clamp(2rem, 6vw, 3.5rem); }
+    header h1 { font-size: 1.05rem; font-weight: normal; letter-spacing: .3em; text-transform: uppercase; }
+    header p { margin-top: .6rem; font-size: .9rem; color: #707070; font-style: italic; letter-spacing: .02em; }
 
-    .gallery figure { margin-bottom: 3rem; }
-    .gallery img { width: 100%; height: auto; cursor: zoom-in; }
-    .gallery figcaption { margin-top: .5rem; font-size: .9rem; color: #666; }
+    .gallery figure { margin-bottom: 3.5rem; }
+    /* l'opera tiene le sue proporzioni e non supera l'85% dell'altezza dello schermo */
+    .gallery img {
+      width: min(100%, calc(85vh * var(--ar)));
+      height: auto;
+      aspect-ratio: var(--ar);
+      margin: 0 auto;
+      cursor: zoom-in;
+      background: #f4f3f1;
+      opacity: 0;
+      transition: opacity .7s ease;
+    }
+    .gallery img.loaded { opacity: 1; }
+    .gallery figcaption { margin-top: .75rem; font-size: .9rem; color: #666; text-align: center; }
     .gallery figcaption .t { font-style: italic; }
 
-    footer { margin-top: 2rem; padding: 2.5rem 0 3rem; border-top: 1px solid #e5e5e5; color: #555; font-size: .95rem; }
+    footer.wrap { margin-top: 2rem; padding-top: 2.5rem; padding-bottom: 3.5rem; border-top: 1px solid #e8e8e8; color: #555; font-size: .95rem; }
+    footer .about { max-width: 36rem; text-wrap: pretty; }
     footer p + p { margin-top: 1rem; }
     footer .links { margin-top: 1.5rem; }
     footer .links a { margin-right: 1.25rem; }
     footer .copy { margin-top: 2rem; font-size: .8rem; color: #999; }
 
-    ::selection { background: #f0ddd2; }
+    ::selection { background: rgba(189, 66, 46, .18); }
 
     /* lightbox */
-    .lightbox { position: fixed; inset: 0; z-index: 100; background: rgba(255, 255, 255, .97); display: flex; align-items: center; justify-content: center; }
-    .lightbox.hidden { display: none; }
+    .lightbox { position: fixed; inset: 0; z-index: 100; background: rgba(255, 255, 255, .97); display: flex; align-items: center; justify-content: center; opacity: 1; visibility: visible; transition: opacity .25s ease; }
+    .lightbox.hidden { opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .25s ease, visibility 0s linear .25s; }
     .lightbox img { max-width: 92vw; max-height: 82vh; cursor: zoom-out; }
-    .lightbox .cap { position: absolute; bottom: 1.25rem; left: 0; right: 0; text-align: center; font-size: .9rem; color: #666; font-style: italic; padding: 0 1rem; }
+    .lightbox .count { position: absolute; top: 1.1rem; left: 1.25rem; font-size: .8rem; letter-spacing: .12em; color: #999; font-variant-numeric: tabular-nums; }
+    .lightbox .cap { position: absolute; bottom: 1.25rem; left: 0; right: 0; text-align: center; font-size: .9rem; color: #666; font-style: italic; padding: 0 1rem; text-wrap: balance; }
     .lightbox .nav { position: absolute; top: 50%; transform: translateY(-50%); border: none; background: none; font: inherit; font-size: 1.6rem; color: #999; cursor: pointer; padding: 1rem; }
     .lightbox .nav:hover { color: #222; }
     #lb-prev { left: .5rem; }
     #lb-next { right: .5rem; }
     #lb-close { position: absolute; top: .75rem; right: 1rem; border: none; background: none; font-size: 1.6rem; color: #999; cursor: pointer; }
     #lb-close:hover { color: #222; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .gallery img, .lightbox, .lightbox.hidden, a { transition: none; }
+    }
   </style>
 </head>
 <body>
@@ -73,7 +95,7 @@
   </main>
 
   <footer class="wrap">
-    <p>Chiudo gli occhi non per fuggire dal mondo, ma per lasciarlo entrare. Non dormo e non penso: ascolto. Le immagini nascono dal paesaggio e dalla vita quotidiana che mi circondano, dalla contemplazione, nella terra del Basso Piave.</p>
+    <p class="about">Chiudo gli occhi non per fuggire dal mondo, ma per lasciarlo entrare. Non dormo e non penso: ascolto. Le immagini nascono dal paesaggio e dalla vita quotidiana che mi circondano, dalla contemplazione, nella terra del Basso Piave.</p>
     <div class="links">
       <a href="mailto:lori@lorivio.it">Email</a>
     </div>
@@ -81,69 +103,129 @@
   </footer>
 
   <div class="lightbox hidden" id="lightbox" role="dialog" aria-modal="true">
+    <div class="count" id="lb-count"></div>
     <button id="lb-close" aria-label="Chiudi">×</button>
     <button class="nav" id="lb-prev" aria-label="Precedente">←</button>
-    <img id="lb-img" src="" alt="" />
+    <img id="lb-img" alt="" />
     <button class="nav" id="lb-next" aria-label="Successiva">→</button>
     <div class="cap" id="lb-cap"></div>
   </div>
 
   <script>
     var ARTWORKS = [
-      { src: 'images/il-viaggiatore-102.webp', t: 'Il viaggiatore', c: 'Inchiostro e acquerello' },
-      { src: 'images/voci-dalle-montagne-021.webp', t: 'Voci dalle montagne', c: 'Acquerello' },
-      { src: 'images/la-grande-onda-019.webp', t: 'La grande onda', c: 'Acquerello' },
-      { src: 'images/estate-in-campagna-013.webp', t: 'Estate in campagna', c: 'Acquerello' },
-      { src: 'images/vento-di-bora-020.webp', t: 'Vento di bora', c: 'Acquerello' },
-      { src: 'images/drago-nuvola-014.webp', t: 'Drago nuvola', c: 'Acquerello' },
-      { src: 'images/si-accendono-le-stelle-015.webp', t: 'Si accendono le stelle', c: 'Inchiostro e grafite' },
-      { src: 'images/parte-della-natura-012.webp', t: 'Parte della natura', c: 'Inchiostro e acquerello' },
-      { src: 'images/deporre-le-armi-016.webp', t: 'Deporre le armi', c: 'Inchiostro e acquerello' },
-      { src: 'images/032.webp', t: 'Il mare sale a trovarli', c: 'Inchiostro e acquerello' },
-      { src: 'images/sotto-il-sole-017.webp', t: 'In cima al monte', c: 'Inchiostro e grafite' },
-      { src: 'images/dimensioni-del-tempo-022.webp', t: 'Dimensioni del tempo', c: 'Inchiostro e grafite' },
-      { src: 'images/carta-paglia-006.webp', t: 'Carta paglia', c: 'Inchiostro su carta di paglia' },
-      { src: 'images/selvaggio-viaggiatore-008.webp', t: 'Riposo del lupo', c: 'Olio su tela' },
-      { src: 'images/il-fuoco-e-la-luna-009.webp', t: 'Il fuoco e la luna', c: 'Olio su tela' },
-      { src: 'images/copertina-per-katan-028.webp', t: 'Katan — studio di copertina', c: 'Editoriale' }
+      { src: 'images/il-viaggiatore-102.webp', w: 1198, h: 1600, t: 'Il viaggiatore', c: 'Inchiostro e acquerello' },
+      { src: 'images/voci-dalle-montagne-021.webp', w: 1300, h: 930, t: 'Voci dalle montagne', c: 'Acquerello' },
+      { src: 'images/la-grande-onda-019.webp', w: 1300, h: 911, t: 'La grande onda', c: 'Acquerello' },
+      { src: 'images/estate-in-campagna-013.webp', w: 1300, h: 1083, t: 'Estate in campagna', c: 'Acquerello' },
+      { src: 'images/vento-di-bora-020.webp', w: 1024, h: 974, t: 'Vento di bora', c: 'Acquerello' },
+      { src: 'images/drago-nuvola-014.webp', w: 1300, h: 1092, t: 'Drago nuvola', c: 'Acquerello' },
+      { src: 'images/si-accendono-le-stelle-015.webp', w: 1300, h: 929, t: 'Si accendono le stelle', c: 'Inchiostro e grafite' },
+      { src: 'images/parte-della-natura-012.webp', w: 1300, h: 913, t: 'Parte della natura', c: 'Inchiostro e acquerello' },
+      { src: 'images/deporre-le-armi-016.webp', w: 1073, h: 1300, t: 'Deporre le armi', c: 'Inchiostro e acquerello' },
+      { src: 'images/032.webp', w: 1600, h: 833, t: 'Il mare sale a trovarli', c: 'Inchiostro e acquerello' },
+      { src: 'images/sotto-il-sole-017.webp', w: 963, h: 1300, t: 'In cima al monte', c: 'Inchiostro e grafite' },
+      { src: 'images/dimensioni-del-tempo-022.webp', w: 1300, h: 928, t: 'Dimensioni del tempo', c: 'Inchiostro e grafite' },
+      { src: 'images/carta-paglia-006.webp', w: 868, h: 1300, t: 'Carta paglia', c: 'Inchiostro su carta di paglia' },
+      { src: 'images/selvaggio-viaggiatore-008.webp', w: 1300, h: 1080, t: 'Riposo del lupo', c: 'Olio su tela' },
+      { src: 'images/il-fuoco-e-la-luna-009.webp', w: 821, h: 1300, t: 'Il fuoco e la luna', c: 'Olio su tela' },
+      { src: 'images/copertina-per-katan-028.webp', w: 1036, h: 1300, t: 'Katan — studio di copertina', c: 'Editoriale' }
     ];
 
     var grid = document.getElementById('grid');
 
     ARTWORKS.forEach(function (a, i) {
       var fig = document.createElement('figure');
-      fig.innerHTML =
-        '<img src="' + a.src + '" alt="' + a.t + ' — ' + a.c + '" loading="lazy" />' +
-        '<figcaption><span class="t">' + a.t + '</span> · ' + a.c + '</figcaption>';
-      fig.querySelector('img').addEventListener('click', function () { openLb(i); });
+
+      var img = document.createElement('img');
+      img.width = a.w;
+      img.height = a.h;
+      img.style.setProperty('--ar', (a.w / a.h).toFixed(4));
+      img.alt = a.t + ' — ' + a.c;
+      img.loading = 'lazy';
+      img.tabIndex = 0;
+      img.setAttribute('role', 'button');
+      function show() { img.classList.add('loaded'); }
+      img.addEventListener('load', show);
+      img.addEventListener('error', show);
+      img.src = a.src;
+      if (img.complete) show();
+      img.addEventListener('click', function () { openLb(i); });
+      img.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLb(i); }
+      });
+
+      var cap = document.createElement('figcaption');
+      var title = document.createElement('span');
+      title.className = 't';
+      title.textContent = a.t;
+      cap.appendChild(title);
+      cap.appendChild(document.createTextNode(' · ' + a.c));
+
+      fig.appendChild(img);
+      fig.appendChild(cap);
       grid.appendChild(fig);
     });
 
     var lb = document.getElementById('lightbox');
     var lbImg = document.getElementById('lb-img');
     var lbCap = document.getElementById('lb-cap');
+    var lbCount = document.getElementById('lb-count');
+    var lbClose = document.getElementById('lb-close');
     var lbIndex = 0;
+    var lastFocus = null;
 
+    function preload(i) {
+      new Image().src = ARTWORKS[(i + ARTWORKS.length) % ARTWORKS.length].src;
+    }
     function renderLb() {
       var a = ARTWORKS[lbIndex];
       lbImg.src = a.src;
       lbImg.alt = a.t + ' — ' + a.c;
       lbCap.textContent = a.t + ' — ' + a.c;
+      lbCount.textContent = (lbIndex + 1) + ' / ' + ARTWORKS.length;
+      preload(lbIndex + 1);
+      preload(lbIndex - 1);
     }
-    function openLb(i) { lbIndex = i; renderLb(); lb.classList.remove('hidden'); }
-    function closeLb() { lb.classList.add('hidden'); }
+    function openLb(i) {
+      lastFocus = document.activeElement;
+      lbIndex = i;
+      renderLb();
+      lb.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      lbClose.focus();
+    }
+    function closeLb() {
+      lb.classList.add('hidden');
+      document.body.style.overflow = '';
+      if (lastFocus && lastFocus.focus) lastFocus.focus();
+    }
     function stepLb(d) { lbIndex = (lbIndex + d + ARTWORKS.length) % ARTWORKS.length; renderLb(); }
 
-    document.getElementById('lb-close').addEventListener('click', closeLb);
+    lbClose.addEventListener('click', closeLb);
     document.getElementById('lb-prev').addEventListener('click', function () { stepLb(-1); });
     document.getElementById('lb-next').addEventListener('click', function () { stepLb(1); });
     lbImg.addEventListener('click', closeLb);
+    lb.addEventListener('click', function (e) { if (e.target === lb) closeLb(); });
     document.addEventListener('keydown', function (e) {
       if (lb.classList.contains('hidden')) return;
       if (e.key === 'Escape') closeLb();
       if (e.key === 'ArrowRight') stepLb(1);
       if (e.key === 'ArrowLeft') stepLb(-1);
     });
+
+    // scorrimento col dito su telefono
+    var touchX = 0, touchY = 0;
+    lb.addEventListener('touchstart', function (e) {
+      var t = e.changedTouches[0];
+      touchX = t.clientX;
+      touchY = t.clientY;
+    }, { passive: true });
+    lb.addEventListener('touchend', function (e) {
+      var t = e.changedTouches[0];
+      var dx = t.clientX - touchX;
+      var dy = t.clientY - touchY;
+      if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) stepLb(dx < 0 ? 1 : -1);
+    }, { passive: true });
   </script>
 </body>
 </html>
