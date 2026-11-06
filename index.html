@@ -18,50 +18,52 @@
   <meta name="twitter:card" content="summary_large_image" />
   <link rel="icon" type="image/svg+xml" href="images/favicon.svg" />
   <style>
-    :root { --accent: #bd422e; } /* rosso del timbro nelle opere */
+    :root { --accent: #bd422e; --gap: 18px; --pad: 18px; --radius: 16px; } /* rosso del timbro nelle opere */
+    @media (max-width: 600px) { :root { --gap: 10px; --pad: 12px; } }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html { scrollbar-gutter: stable; }
     body {
       background: #fff;
-      color: #222;
-      font-family: Georgia, "Times New Roman", serif;
-      font-size: 17px;
-      line-height: 1.6;
+      color: #111;
+      font-family: -apple-system, "Helvetica Neue", Helvetica, "Segoe UI", Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
       -webkit-font-smoothing: antialiased;
     }
     img { display: block; max-width: 100%; }
-    a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; transition: color .2s ease; }
+    a { color: inherit; text-decoration: none; transition: color .2s ease; }
     a:hover, a:focus-visible { color: var(--accent); }
-    :focus-visible { outline: 1px solid var(--accent); outline-offset: 3px; }
-    .wrap { max-width: 46rem; margin: 0 auto; padding: 0 1.25rem; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
-    header.wrap { padding-top: clamp(2.5rem, 9vw, 5rem); padding-bottom: clamp(2rem, 6vw, 3.5rem); }
-    header h1 { font-size: 1.05rem; font-weight: normal; letter-spacing: .3em; text-transform: uppercase; }
-    header p { margin-top: .6rem; font-size: .9rem; color: #707070; font-style: italic; letter-spacing: .02em; }
+    /* intestazione: logo, nome e testo */
+    .profile { max-width: 1800px; margin: 0 auto; padding: clamp(28px, 5vw, 56px) clamp(var(--pad), 5.9vw, 140px) 0; }
+    .id { display: flex; align-items: center; gap: 24px; }
+    .avatar { flex: none; width: 130px; height: 130px; border-radius: 50%; object-fit: cover; background: #efeeec; }
+    .profile h1 { font-size: 1.875rem; font-weight: 700; line-height: 1.15; letter-spacing: -.01em; }
+    .profile .mail { display: inline-block; margin-top: 4px; color: #767676; }
+    .bio { margin-top: 24px; max-width: 44rem; font-size: 1.0625rem; line-height: 1.5; text-wrap: pretty; }
 
-    .gallery figure { margin-bottom: 3.5rem; }
-    /* l'opera tiene le sue proporzioni e non supera l'85% dell'altezza dello schermo */
-    .gallery img {
-      width: min(100%, calc(85vh * var(--ar)));
+    /* griglia a colonne */
+    .grid { display: flex; align-items: flex-start; gap: var(--gap); max-width: 1800px; margin: 56px auto 0; padding: 0 var(--pad); }
+    .col { flex: 1 1 0; min-width: 0; }
+    .card { margin-bottom: 20px; }
+    .card img {
+      width: 100%;
       height: auto;
       aspect-ratio: var(--ar);
-      margin: 0 auto;
+      object-fit: cover;
+      border-radius: var(--radius);
       cursor: zoom-in;
-      background: #f4f3f1;
+      background: #efeeec;
       opacity: 0;
-      transition: opacity .7s ease;
+      transition: opacity .6s ease;
     }
-    .gallery img.loaded { opacity: 1; }
-    .gallery figcaption { margin-top: .75rem; font-size: .9rem; color: #666; text-align: center; }
-    .gallery figcaption .t { font-style: italic; }
+    .card img.loaded { opacity: 1; }
+    .card figcaption { margin-top: 8px; padding: 0 6px; font-size: .9375rem; line-height: 1.35; }
 
-    footer.wrap { margin-top: 2rem; padding-top: 2.5rem; padding-bottom: 3.5rem; border-top: 1px solid #e8e8e8; color: #555; font-size: .95rem; }
-    footer .about { max-width: 36rem; text-wrap: pretty; }
-    footer p + p { margin-top: 1rem; }
-    footer .links { margin-top: 1.5rem; }
-    footer .links a { margin-right: 1.25rem; }
-    footer .copy { margin-top: 2rem; font-size: .8rem; color: #999; }
+    footer { max-width: 1800px; margin: 32px auto 0; padding: 24px clamp(var(--pad), 5.9vw, 140px) 44px; color: #767676; font-size: .8125rem; }
+    footer a { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
 
     ::selection { background: rgba(189, 66, 46, .18); }
 
@@ -69,37 +71,44 @@
     .lightbox { position: fixed; inset: 0; z-index: 100; background: rgba(255, 255, 255, .97); display: flex; align-items: center; justify-content: center; opacity: 1; visibility: visible; transition: opacity .25s ease; }
     .lightbox.hidden { opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .25s ease, visibility 0s linear .25s; }
     .lightbox img { max-width: 92vw; max-height: 82vh; cursor: zoom-out; }
-    .lightbox .count { position: absolute; top: 1.1rem; left: 1.25rem; font-size: .8rem; letter-spacing: .12em; color: #999; font-variant-numeric: tabular-nums; }
-    .lightbox .cap { position: absolute; bottom: 1.25rem; left: 0; right: 0; text-align: center; font-size: .9rem; color: #666; font-style: italic; padding: 0 1rem; text-wrap: balance; }
+    .lightbox .count { position: absolute; top: 1.1rem; left: 1.25rem; font-size: .8rem; letter-spacing: .12em; color: #767676; font-variant-numeric: tabular-nums; }
+    .lightbox .cap { position: absolute; bottom: 1.25rem; left: 0; right: 0; text-align: center; font-size: .9rem; color: #555; padding: 0 1rem; text-wrap: balance; }
     .lightbox .nav { position: absolute; top: 50%; transform: translateY(-50%); border: none; background: none; font: inherit; font-size: 1.6rem; color: #999; cursor: pointer; padding: 1rem; }
-    .lightbox .nav:hover { color: #222; }
+    .lightbox .nav:hover { color: #111; }
     #lb-prev { left: .5rem; }
     #lb-next { right: .5rem; }
     #lb-close { position: absolute; top: .75rem; right: 1rem; border: none; background: none; font-size: 1.6rem; color: #999; cursor: pointer; }
-    #lb-close:hover { color: #222; }
+    #lb-close:hover { color: #111; }
 
+    @media (max-width: 600px) {
+      .id { gap: 16px; }
+      .avatar { width: 88px; height: 88px; }
+      .profile h1 { font-size: 1.5rem; }
+      .grid { margin-top: 36px; }
+      .card figcaption { font-size: .875rem; }
+    }
     @media (prefers-reduced-motion: reduce) {
-      .gallery img, .lightbox, .lightbox.hidden, a { transition: none; }
+      .card img, .lightbox, .lightbox.hidden, a { transition: none; }
     }
   </style>
 </head>
 <body>
 
-  <header class="wrap">
-    <h1>Lorivio</h1>
-    <p>Illustrazioni nell'era degli uomini macchina</p>
+  <header class="profile">
+    <div class="id">
+      <img class="avatar" src="images/orsetto-profilo.webp" width="130" height="130" alt="Lorivio" />
+      <div>
+        <h1>Lorivio</h1>
+        <a class="mail" href="mailto:lori@lorivio.it">lori@lorivio.it</a>
+      </div>
+    </div>
+    <p class="bio">Illustrazioni nell'era degli uomini macchina. Chiudo gli occhi non per fuggire dal mondo, ma per lasciarlo entrare. Non dormo e non penso: ascolto. Le immagini nascono dal paesaggio e dalla vita quotidiana che mi circondano, dalla contemplazione, tra la terra del Basso Piave e le Dolomiti Friulane.</p>
   </header>
 
-  <main class="wrap">
-    <div class="gallery" id="grid"></div>
-  </main>
+  <main class="grid" id="grid"></main>
 
-  <footer class="wrap">
-    <p class="about">Chiudo gli occhi non per fuggire dal mondo, ma per lasciarlo entrare. Non dormo e non penso: ascolto. Le immagini nascono dal paesaggio e dalla vita quotidiana che mi circondano, dalla contemplazione, tra la terra del Basso Piave e le Dolomiti Friulane.</p>
-    <div class="links">
-      <a href="mailto:lori@lorivio.it">Email</a>
-    </div>
-    <p class="copy">© 2026 Lori · Le illustrazioni sono distribuite con licenza <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" rel="noreferrer">CC BY-NC-ND 4.0</a></p>
+  <footer>
+    <p>© 2026 Lori · Le illustrazioni sono distribuite con licenza <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" rel="noreferrer">CC BY-NC-ND 4.0</a></p>
   </footer>
 
   <div class="lightbox hidden" id="lightbox" role="dialog" aria-modal="true">
@@ -132,8 +141,10 @@
 
     var grid = document.getElementById('grid');
 
-    ARTWORKS.forEach(function (a, i) {
-      var fig = document.createElement('figure');
+    // una scheda per opera: miniatura leggera, titolo sotto
+    var cards = ARTWORKS.map(function (a, i) {
+      var card = document.createElement('figure');
+      card.className = 'card';
 
       var img = document.createElement('img');
       img.width = a.w;
@@ -141,12 +152,13 @@
       img.style.setProperty('--ar', (a.w / a.h).toFixed(4));
       img.alt = a.t + ' — ' + a.c;
       img.loading = 'lazy';
+      img.decoding = 'async';
       img.tabIndex = 0;
       img.setAttribute('role', 'button');
       function show() { img.classList.add('loaded'); }
       img.addEventListener('load', show);
       img.addEventListener('error', show);
-      img.src = a.src;
+      img.src = a.src.replace('images/', 'images/thumbs/');
       if (img.complete) show();
       img.addEventListener('click', function () { openLb(i); });
       img.addEventListener('keydown', function (e) {
@@ -154,15 +166,42 @@
       });
 
       var cap = document.createElement('figcaption');
-      var title = document.createElement('span');
-      title.className = 't';
-      title.textContent = a.t;
-      cap.appendChild(title);
-      cap.appendChild(document.createTextNode(' · ' + a.c));
+      cap.textContent = a.t;
 
-      fig.appendChild(img);
-      fig.appendChild(cap);
-      grid.appendChild(fig);
+      card.appendChild(img);
+      card.appendChild(cap);
+      return card;
+    });
+
+    // colonne: ogni scheda va nella colonna più bassa, da sinistra a destra
+    var colCount = 0;
+    function layout() {
+      var cs = getComputedStyle(grid);
+      var gap = parseFloat(cs.columnGap) || 18;
+      var inner = grid.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+      var n = Math.max(2, Math.min(6, Math.floor((inner + gap) / (236 + gap))));
+      if (n === colCount) return;
+      colCount = n;
+
+      grid.textContent = '';
+      var cols = [];
+      for (var k = 0; k < n; k++) {
+        var col = document.createElement('div');
+        col.className = 'col';
+        grid.appendChild(col);
+        cols.push(col);
+      }
+      cards.forEach(function (card) {
+        var lowest = cols[0];
+        cols.forEach(function (c) { if (c.offsetHeight < lowest.offsetHeight) lowest = c; });
+        lowest.appendChild(card);
+      });
+    }
+    layout();
+    var resizeTimer;
+    window.addEventListener('resize', function () {
+      cancelAnimationFrame(resizeTimer);
+      resizeTimer = requestAnimationFrame(layout);
     });
 
     var lb = document.getElementById('lightbox');
