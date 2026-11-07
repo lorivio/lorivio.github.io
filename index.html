@@ -19,7 +19,7 @@
   <link rel="icon" type="image/svg+xml" href="images/favicon.svg" />
   <style>
     :root { --accent: #bd422e; --gap: 18px; --pad: 18px; --radius: 16px; } /* rosso del timbro nelle opere */
-    @media (max-width: 600px) { :root { --gap: 10px; --pad: 12px; } }
+    @media (max-width: 600px) { :root { --gap: 8px; --pad: 8px; } }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html { scrollbar-gutter: stable; }
@@ -81,10 +81,14 @@
     #lb-close:hover { color: #111; }
 
     @media (max-width: 600px) {
+      .profile { padding: 24px 16px 0; }
       .id { gap: 16px; }
-      .avatar { width: 88px; height: 88px; }
-      .profile h1 { font-size: 1.5rem; }
-      .grid { margin-top: 36px; }
+      .avatar { width: 64px; height: 64px; }
+      .profile h1 { font-size: 1.25rem; line-height: 1.2; }
+      .profile .sub { margin-top: 2px; font-size: .75rem; line-height: 1.5; color: #62625b; }
+      .bio { margin-top: 16px; font-size: 1rem; line-height: 1.4; }
+      .grid { margin-top: 24px; }
+      footer { padding-left: 16px; padding-right: 16px; }
       .card { margin-bottom: var(--gap); }
       .card figcaption { display: none; }
     }
