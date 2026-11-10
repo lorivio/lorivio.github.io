@@ -79,7 +79,10 @@
     .card figcaption { margin-top: 8px; padding: 0 6px; font-size: .9375rem; line-height: 1.35; }
 
     footer { max-width: 1800px; margin: 32px auto 0; padding: 24px clamp(var(--pad), 5.9vw, 140px) 44px; color: #767676; font-size: .8125rem; }
-    footer a { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+    footer a, footer .contact { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+    footer .contact { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; transition: color .2s ease; }
+    footer .contact:hover { color: var(--accent); }
+    footer p + p { margin-top: 8px; }
 
     ::selection { background: rgba(189, 66, 46, .18); }
 
@@ -129,6 +132,7 @@
   <main class="grid" id="grid"></main>
 
   <footer>
+    <p><button type="button" class="contact" id="contact">Scrivimi</button></p>
     <p>© 2026 Lori · Le illustrazioni sono distribuite con licenza <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" rel="noreferrer">CC BY-NC-ND 4.0</a></p>
   </footer>
 
@@ -280,6 +284,18 @@
       if (e.key === 'Escape') closeLb();
       if (e.key === 'ArrowRight') stepLb(1);
       if (e.key === 'ArrowLeft') stepLb(-1);
+    });
+
+    // contatto: l'indirizzo non è scritto nella pagina, si compone solo al clic
+    var contact = document.getElementById('contact');
+    contact.addEventListener('click', function () {
+      var addr = 'lori' + String.fromCharCode(64) + ['it', 'lorivio'].reverse().join('.');
+      var link = document.createElement('a');
+      link.href = 'mailto:' + addr;
+      link.textContent = addr;
+      contact.replaceWith(link);
+      link.click();
+      link.focus();
     });
 
     // scorrimento col dito su telefono
